@@ -34,6 +34,7 @@ Git Flow é uma estratégia de ramificação que organiza o desenvolvimento em d
 | `release/*`    | Versões de entrega (homol) |
 | `develop`      | Código em desenvolvimento |
 | `feature/*`    | Funcionalidades novas |
+| `fix/*`        | Correções |
 | `hotfix/*`     | Correções urgentes |
 
 ## 📌 Pré-requisitos
