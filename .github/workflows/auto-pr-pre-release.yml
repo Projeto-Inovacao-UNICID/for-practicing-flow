@@ -1,0 +1,45 @@
+
+name: Create Pre Release PR
+
+on:
+  pull_request:
+    branches:
+      - develop
+    types: [closed]
+
+jobs:
+  create-pull-request:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Generate GitHub App token
+        id: generate-token
+        uses: tibdex/github-app-token@v2
+        with:
+          app_id: ${{ secrets.GH_APP_ID }}
+          private_key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+          github_api_url: https://api.github.com
+      
+      - name: Get the latest version tag
+        id: get-version
+        run: |
+          VERSION=$(git describe --tags --abbrev=0)
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+
+
+      - name: Create Pull Request to Release Branch
+        id: open-pr
+        uses: diillson/auto-pull-request@v1.0.1
+        with:
+          github_token: ${{ steps.generate-token.outputs.token }}
+          destination_branch: release/v${{ env.VERSION }}
+          source_branch: develop
+          pr_title: "Release: ${{ env.VERSION }}"
+          pr_body: |
+            Este pull request foi criado automaticamente para integrar as alterações da branch **develop** na branch **release/v${{ env.VERSION }}**.
+          pr_draft: false
+          pr_reviewer: egmj, leoBouzan, 
