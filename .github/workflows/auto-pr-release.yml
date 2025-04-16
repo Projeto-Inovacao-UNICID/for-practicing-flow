@@ -1,0 +1,41 @@
+name: Create Release PR to Main
+
+on:
+  push:
+    branches:
+      - release/*
+
+jobs:
+  create-pull-request:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Generate GitHub App token
+        id: generate-token
+        uses: tibdex/github-app-token@v2
+        with:
+          app_id: ${{ secrets.GH_APP_ID }}
+          private_key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+          github_api_url: https://api.github.com
+
+      - name: Get the version from release branch
+        id: get-version
+        run: |
+          VERSION=$(echo ${GITHUB_REF} | sed 's/refs\/heads\/release\///')
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+
+      - name: Create Pull Request to main branch
+        id: open-pr
+        uses: diillson/auto-pull-request@v1.0.1
+        with:
+          github_token: ${{ steps.generate-token.outputs.token }}
+          destination_branch: main
+          source_branch: release/v${{ env.VERSION }}
+          pr_title: "Release v${{ env.VERSION }} to main"
+          pr_body: |
+            Este pull request foi criado automaticamente para integrar as alterações da branch **release/v${{ env.VERSION }}** na branch **main**.
+          pr_draft: false
+          pr_reviewer: "seu-usuario, outro-usuario"  # Coloque mais de um nome de usuário, separados por vírgula
